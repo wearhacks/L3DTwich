@@ -1,0 +1,22 @@
+{
+  "name": "l3d-twich",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wearhacks/L3DTwich.git"
+  },
+  "author": "Alexis Matelin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wearhacks/L3DTwich/issues"
+  },
+  "homepage": "https://github.com/wearhacks/L3DTwich#readme",
+  "dependencies": {
+    "net-socket": "^1.0.0"
+  }
+}
