@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/wearhacks/L3DTwich#readme",
   "dependencies": {
-    "net-socket": "^1.0.0"
+    "net-socket": "^1.0.0",
+    "tmi.js": "0.0.24"
   }
 }
