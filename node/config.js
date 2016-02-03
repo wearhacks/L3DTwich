@@ -1,9 +1,17 @@
 var config = {};
 
-config.server = {
+config.processing = {
+    server : {
     port: 3001, 
     host: "localhost"
+    }
 };
+
+config.node = {
+    server : {
+        port: 8080
+    }
+}
 
 config.twich = {
     options: {

@@ -2,19 +2,30 @@ require('events').EventEmitter.defaultMaxListeners = Infinity;
 
 var net = require('net-socket'), 
     irc = require('tmi.js'),
+    express = require('express'),
+    server = express(),
+    bodyParser = require('body-parser'),
     config = require('./config');
 
-var client = new irc.client(config.twich);
-client.connect();
-
-var socket = net.connect(config.server.port, config.server.host, function() {
+/* Communications with Processing */
+// Socket open with the local Processing server
+var socket = net.connect(config.processing.server.port, config.processing.server.host, function() {
     console.log("Connected");
     socket.write("Hello, love from client!");
 });
 
+
+/* Communications with Twich */
+// IRC client that will monitor the channel's IRC chat
+var client = new irc.client(config.twich);
+client.connect();
+
+// Binding a response to new chat event: 
+// if new message, parse it and send it to Processing
+// (if it is valid)
 client.on("chat", function(channel, user, message, self) {
     try {
-         var data = parseMessage(message);
+        var data = parseMessage(message);
         console.log(data);
         socket.write(data);       
     } catch(e) {
@@ -22,6 +33,36 @@ client.on("chat", function(channel, user, message, self) {
     }
 });
 
+
+/* API */
+server.use(bodyParser.json());
+server.use(bodyParser.urlencoded({ extended: false }));
+server.post('/', function(req, res) {
+    var color = req.body.color,
+        x = req.body.x, 
+        y = req.body.y, 
+        z = req.body.z;
+
+    var data = [x, y, z].join(",") + ":" + color;
+
+    try {
+        console.log(data)
+        socket.write(data);
+        res.sendStatus(200);   
+    } catch(e) {
+        res,sendStatus(500);
+    }
+
+});
+
+server.listen(config.node.server.port, function() {
+    console.log('API running on port ' + config.node.server.port);
+})
+
+
+
+
+/* Helper functions */
 function parseMessage(message) {
     var splitMessage, 
         cleanMessage = [],
