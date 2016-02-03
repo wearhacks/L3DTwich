@@ -13,11 +13,14 @@ var socket = net.connect(config.server.port, config.server.host, function() {
 });
 
 client.on("chat", function(channel, user, message, self) {
-    console.log(message);
-    parseMessage(message);
+    try {
+         var data = parseMessage(message);
+        console.log(data);
+        socket.write(data);       
+    } catch(e) {
+        return;
+    }
 });
-
-
 
 function parseMessage(message) {
     var splitMessage, 
@@ -37,19 +40,21 @@ function parseMessage(message) {
         splitMessage = message.split("|");
     } 
 
-        splitMessage.forEach(function(slice) {
-            var tempList = [], 
-                paddedList = [];
+    cleanMessage.push(splitMessage[0]);
+     
+    var tempList = [], 
+        paddedList = [];
 
-                tempList = slice.split(',');
-                tempList.forEach(function(value) {
-                    paddedList.push(padValue(value, "000"));
-                });
+    tempList = splitMessage[1].split(',');
+    tempList.forEach(function(value) {
+        paddedList.push(padValue(value, "000"));
+    });
 
-                cleanMessage.push(paddedList.join(","));
-        });
+    cleanMessage.push(paddedList.join(","));
+   
     dataString = cleanMessage.join(':');
-    console.log(dataString);
+
+    return dataString;
 }
 
 function padValue(input, padding) {
