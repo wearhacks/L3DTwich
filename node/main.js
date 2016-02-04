@@ -35,26 +35,36 @@ client.on("chat", function(channel, user, message, self) {
 
 
 /* API */
+// http request body parser middleware
 server.use(bodyParser.json());
 server.use(bodyParser.urlencoded({ extended: false }));
+
+// POST new point
 server.post('/', function(req, res) {
     var color = req.body.color,
         x = req.body.x, 
         y = req.body.y, 
         z = req.body.z;
 
-    var data = [x, y, z].join(",") + ":" + color;
+    var paddedColor = [];
+
+    color.split(',').forEach(function(c) {
+        paddedColor.push(padValue(c, "000"));
+    })
+
+    var data = [x, y, z].join(",") + ":" + paddedColor.join(',');
 
     try {
         console.log(data)
         socket.write(data);
         res.sendStatus(200);   
     } catch(e) {
-        res,sendStatus(500);
+        res.sendStatus(500);
     }
 
 });
 
+// Launch server
 server.listen(config.node.server.port, function() {
     console.log('API running on port ' + config.node.server.port);
 })

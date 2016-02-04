@@ -6,61 +6,85 @@
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 </head>
 <body>
+  <div id="twich">
+    <iframe src="http://player.twitch.tv/?channel=digitaljunkytwich" width=720 height=420 allowfullscreen></iframe>
+  </div>
+  <div id="control">
+  <div style="float:left">
+    <canvas width="300" height="300" id="canvas_picker"></canvas>
+    <div id="hex">HEX: <input type="text"></input></div>
+    <div id="rgb">RGB: <input type="text"></input></div>
+    <div id="coordinates">
+      <label for"x">X</label>
+      <input id="xInput" name="x" type="number" steps=1 min=0 max=7></input>
+      <label for"y">Y</label>
+      <input id="yInput" name="y" type="number" steps=1 min=0 max=7></input>
+      <label for"z">Z</label>
+      <input id="zInput" name="z" type="number" steps=1 min=0 max=7></input>    
+    </div>
+    <div>
+      <button id="submit-button" type="submit">Submit</button>
+    </div>
+  </div>
+  <div style="float:left">
+     <iframe id="chat_embed" src="http://twitch.tv/chat/embed?channel=digitaljunkytwich&popout_chat=true" width="300" height="300" frameborder="0"></iframe>
+  <div>
+  </div>
 
-<canvas width="400" height="400" id="canvas_picker"></canvas>
-<div id="hex">HEX: <input type="text"></input></div>
-<div id="rgb">RGB: <input type="text"></input></div>
 
-<script type="text/javascript">
-  var host = "localhost",
-      port = 8080,
-      address = "http://" + host + ":" + port;
-  
-  var canvas = document.getElementById('canvas_picker').getContext('2d');
+  <script type="text/javascript">
+    var host = "localhost",
+        port = 8080,
+        address = "http://" + host + ":" + port;
+    
+    var canvas = document.getElementById('canvas_picker').getContext('2d');
 
-  // create an image object and get it’s source
-  var img = new Image();
-  img.src = 'public/img/color-wheel.jpg';
+    // create an image object and get it’s source
+    var img = new Image();
+    img.src = './public/img/color-wheel.jpg';
+    img.crossOrigin = 'anonymous';
+    
+    // copy the image to the canvas
+    $(img).load(function(){
+      canvas.drawImage(img,0,0, 300, 300);
+    });
 
-  // copy the image to the canvas
-  $(img).load(function(){
-    canvas.drawImage(img,0,0, 400, 400);
-  });
+    // http://www.javascripter.net/faq/rgbtohex.htm
+    function rgbToHex(R,G,B) {return toHex(R)+toHex(G)+toHex(B)}
+    function toHex(n) {
+      n = parseInt(n,10);
+      if (isNaN(n)) return "00";
+      n = Math.max(0,Math.min(n,255));
+      return "0123456789ABCDEF".charAt((n-n%16)/16)  + "0123456789ABCDEF".charAt(n%16);
+    }
+    $('#canvas_picker').click(function(event){
+      // getting user coordinates
+      var x = event.pageX - this.offsetLeft;
+      var y = event.pageY - this.offsetTop;
+      // getting image data and RGB values
+      var img_data = canvas.getImageData(x, y, 1, 1).data;
+      var R = img_data[0];
+      var G = img_data[1];
+      var B = img_data[2];  var rgb = R + ',' + G + ',' + B;
+      // convert RGB to HEX
+      var hex = rgbToHex(R,G,B);
+      // making the color the value of the input
+      $('#rgb input').val(rgb);
+      $('#hex input').val('#' + hex);
+    });
 
-  // http://www.javascripter.net/faq/rgbtohex.htm
-  function rgbToHex(R,G,B) {return toHex(R)+toHex(G)+toHex(B)}
-  function toHex(n) {
-    n = parseInt(n,10);
-    if (isNaN(n)) return "00";
-    n = Math.max(0,Math.min(n,255));
-    return "0123456789ABCDEF".charAt((n-n%16)/16)  + "0123456789ABCDEF".charAt(n%16);
-  }
-  $('#canvas_picker').click(function(event){
-    // getting user coordinates
-    var x = event.pageX - this.offsetLeft;
-    var y = event.pageY - this.offsetTop;
-    // getting image data and RGB values
-    var img_data = canvas.getImageData(x, y, 1, 1).data;
-    var R = img_data[0];
-    var G = img_data[1];
-    var B = img_data[2];  var rgb = R + ',' + G + ',' + B;
-    // convert RGB to HEX
-    var hex = rgbToHex(R,G,B);
-    // making the color the value of the input
-    $('#rgb input').val(rgb);
-    $('#hex input').val('#' + hex);
-
-    $.post(address, {
-      color: rgb, 
-      x: 1, 
-      y: 1, 
-      z: 1
-    }, 
-    function(result) {
-      console.log(result)
+    $('#submit-button').click(function(event) {
+      $.post(address, {
+        color: $('#rgb input').val(), 
+        x: $('#xInput').val(), 
+        y: $('#yInput').val(), 
+        z: $('#zInput').val()
+      }, 
+      function(result) {
+        console.log(result)
+      });
     })
-  });
-</script>
+  </script>
 
 </body>
 </html>
