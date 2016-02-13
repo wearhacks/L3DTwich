@@ -22,10 +22,10 @@ config.twich = {
         reconnect: true
     },
     identity: {
-        username: "digitaljunkytwich",
-        password: "oauth:3kjavt2tu0rihpcgwkactf0ab3ow9o"
+        username: "twitch_username",
+        password: "oauth:your_twitch_oauth_key"
     },
-    channels: ["#digitaljunkytwich"]
+    channels: ["#channel_name"]
 };
 
 module.exports = config;
